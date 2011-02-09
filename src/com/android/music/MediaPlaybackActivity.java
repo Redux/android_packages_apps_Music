@@ -33,6 +33,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.audiofx.AudioEffect;
@@ -45,6 +46,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Layout;
 import android.text.TextUtils.TruncateAt;
@@ -71,6 +73,9 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
 {
     private static final int USE_AS_RINGTONE = CHILD_MENU_BASE;
 
+	private static final String PREF_SHUFFLE = "pref_shuffle";
+	private static final String PREF_REPEAT = "pref_repeat";
+
     private boolean mSeeking = false;
     private boolean mDeviceHasDpad;
     private long mStartSeekPos = 0;
@@ -88,6 +93,9 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
     private int mTouchSlop;
     private ServiceToken mToken;
 	private boolean mIntentDeRegistered = false;
+	
+	private SharedPreferences prefs;
+	private SharedPreferences.Editor prefsEditor;
 
     public MediaPlaybackActivity()
     {
@@ -154,6 +162,10 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
         mProgress.setMax(1000);
 
         mTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
+		
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefsEditor = prefs.edit();
+		
     }
     
     int mInitialX = -1;
@@ -496,6 +508,16 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
         updateTrackInfo();
         long next = refreshNow();
         queueNextRefresh(next);
+
+		try {
+			int shuffleMode = prefs.getInt(PREF_SHUFFLE, MediaPlaybackService.SHUFFLE_NONE);
+			int repeatMode = prefs.getInt(PREF_REPEAT, MediaPlaybackService.REPEAT_NONE);
+			if(mService != null) {
+				mService.setShuffleMode(shuffleMode);
+				mService.setRepeatMode(repeatMode);
+			}
+		} catch (RemoteException ex) {
+		}
     }
     
     @Override
@@ -1000,6 +1022,8 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
                 Log.e("MediaPlaybackActivity", "Invalid shuffle mode: " + shuffle);
             }
             setShuffleButtonImage();
+			prefsEditor.putInt(PREF_SHUFFLE, shuffle);
+			prefsEditor.commit();
         } catch (RemoteException ex) {
         }
     }
@@ -1025,6 +1049,8 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
                 showToast(R.string.repeat_off_notif);
             }
             setRepeatButtonImage();
+			prefsEditor.putInt(PREF_REPEAT, mode);
+			prefsEditor.commit();
         } catch (RemoteException ex) {
         }
         
