@@ -72,7 +72,7 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
     View.OnTouchListener, View.OnLongClickListener
 {
     private static final int USE_AS_RINGTONE = CHILD_MENU_BASE;
-
+	
 	private static final String PREF_SHUFFLE = "pref_shuffle";
 	private static final String PREF_REPEAT = "pref_repeat";
 
@@ -165,7 +165,6 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
 		
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefsEditor = prefs.edit();
-		
     }
     
     int mInitialX = -1;
@@ -512,7 +511,7 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
 		try {
 			int shuffleMode = prefs.getInt(PREF_SHUFFLE, MediaPlaybackService.SHUFFLE_NONE);
 			int repeatMode = prefs.getInt(PREF_REPEAT, MediaPlaybackService.REPEAT_NONE);
-			if(mService != null) {
+			if (mService != null) {
 				mService.setShuffleMode(shuffleMode);
 				mService.setRepeatMode(repeatMode);
 			}

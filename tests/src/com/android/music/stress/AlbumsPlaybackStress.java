@@ -19,7 +19,6 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Instrumentation;
 import android.app.Instrumentation.ActivityMonitor;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -84,7 +83,7 @@ public class AlbumsPlaybackStress extends ActivityInstrumentationTestCase <Album
     
       //Verification: check if it is in low memory
       ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
-      ((ActivityManager)getActivity().getSystemService(Context.ACTIVITY_SERVICE)).getMemoryInfo(mi);
+      ((ActivityManager)getActivity().getSystemService("activity")).getMemoryInfo(mi);
       assertFalse(TAG, mi.lowMemory); 
      
    
